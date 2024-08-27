@@ -4,7 +4,7 @@ from pydub import AudioSegment
 from io import BytesIO
 
 # Title of the app
-st.title("Burdah Memorization Helper Version O")
+st.title("Burdah Memorization Helper Version 0 - test")
 
 # Information about the Burdah poem and the app's purpose
 st.subheader("About This App")
