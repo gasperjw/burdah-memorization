@@ -4,7 +4,7 @@ from pydub import AudioSegment
 from io import BytesIO
 
 # Title of the app
-st.title("Burdah Memorization Helper Version 0 - test")
+st.title("Burdah Memorization Helper Version 0")
 
 # Information about the Burdah poem and the app's purpose
 st.subheader("About This App")
@@ -42,9 +42,12 @@ chapter = st.selectbox("Select Chapter", sorted(df['Chapter'].unique()))
 # Filter the dataframe by the selected chapter
 filtered_df = df[df['Chapter'] == chapter]
 
-# Slider to select start and end lines based on the selected chapter
-start_line = st.number_input("Select start line", min_value=filtered_df['Line Number'].min(), max_value=filtered_df['Line Number'].max(), value=filtered_df['Line Number'].min())
-end_line = st.number_input("Select end line", min_value=start_line, max_value=filtered_df['Line Number'].max(), value=start_line)
+# Get the start and end line numbers for the selected chapter
+start_line = filtered_df['Line Number'].min()
+end_line = filtered_df['Line Number'].max()
+
+# Display the selected start and end lines
+st.write(f"Chapter {chapter} covers lines {start_line} to {end_line}.")
 
 # Input for repeat times
 repeat_times = st.number_input("Number of times to repeat the selection", min_value=1, max_value=100, value=1)
@@ -78,6 +81,7 @@ st.markdown("""
 - [Memorization Tips](https://productivemuslim.com/10-tips-memorize-quran/)
 ---
 """)
+
 
 
 
