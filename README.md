@@ -38,7 +38,7 @@ To run this app locally, follow these steps:
 
 ## File Structure
 
-- **`app.py`**: Main application file containing the Streamlit app.
+- **`streamlit_app.py`**: Main application file containing the Streamlit app.
 - **`burdah.mp3`**: Audio file of the Burdah poem (ensure this file is placed in the correct path).
 - **`Burdah_Lines - Sheet3.csv`**: CSV file containing preprocessed lines with start and end times for each verse.
 
