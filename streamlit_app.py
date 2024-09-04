@@ -83,3 +83,23 @@ st.markdown("""
 - [Memorization Tips](https://productivemuslim.com/10-tips-memorize-quran/)
 ---
 """)
+
+st.subheader("Admin Section: Edit CSV Data")
+password = st.text_input("Enter Admin Password", type="password")
+
+# Define the correct password
+correct_password = "qalam25"  # Change this to your actual password
+
+if password == correct_password:
+    st.success("Access granted! You can now edit the CSV data.")
+    
+    # Allow the user to edit the DataFrame directly
+    edited_df = st.data_editor(df, num_rows="dynamic")
+    
+    # Button to save changes to CSV
+    if st.button("Save Changes"):
+        edited_df.to_csv('Burdah_Lines - Sheet3.csv', index=False)
+        st.write("CSV updated successfully!")
+else:
+    if password:
+        st.error("Incorrect password!")
