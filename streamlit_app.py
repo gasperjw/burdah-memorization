@@ -44,8 +44,12 @@ df['Chapter_Line'] = df.apply(lambda row: f"Chapter {int(row['Chapter'])} - Line
 df['Line Number'] = df['Line Number'].astype(int)# Dropdown to select start line based on chapter and line number
 start_selection = st.selectbox("Select Start Line", df['Chapter_Line'].tolist())
 
-# Dropdown to select end line based on start selection
-end_selection = st.selectbox("Select End Line", df[df['Chapter_Line'] >= start_selection]['Chapter_Line'].tolist())
+
+# Get the index of the selected start line
+start_index = df[df['Chapter_Line'] == start_selection].index[0]
+
+# Dropdown to select end line based on the selected start line's index
+end_selection = st.selectbox("Select End Line", df[df.index >= start_index]['Chapter_Line'].tolist())
 
 # Get start and end line information from the selection
 start_line_data = df[df['Chapter_Line'] == start_selection].iloc[0]
