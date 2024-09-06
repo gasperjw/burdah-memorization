@@ -4,7 +4,7 @@ from pydub import AudioSegment
 from io import BytesIO
 
 # Title of the app
-st.title("Burdah Memorization Helper")
+st.title("Burdah Memorization Helper - Changes")
 
 # Information about the Burdah poem and the app's purpose
 st.subheader("About This App")
@@ -23,6 +23,13 @@ def load_audio(path):
 def load_lines(csv_path):
     return pd.read_csv(csv_path)
 
+# Cache the processing of repeated audio clips
+@st.cache_data
+def get_repeated_clip(audio, start_time, end_time, repeat_times):
+    audio_clip = audio[start_time:end_time]
+    repeated_clip = audio_clip * repeat_times  # Efficiently repeat the audio
+    return repeated_clip
+
 # Load the audio and CSV file with preprocessed lines
 audio_path = 'burdah.mp3'  # Modify this to the correct path
 audio = load_audio(audio_path)
@@ -37,15 +44,17 @@ st.sidebar.write("""
 """)
 
 # Create a new column for displaying chapter and line together in a more user-friendly way
-
-
 df['Chapter_Line'] = df.apply(lambda row: f"Chapter {int(row['Chapter'])} - Line {int(row['Line Number'])}", axis=1)
+df['Line Number'] = df['Line Number'].astype(int)
 
-df['Line Number'] = df['Line Number'].astype(int)# Dropdown to select start line based on chapter and line number
+# Dropdown to select start line based on chapter and line number
 start_selection = st.selectbox("Select Start Line", df['Chapter_Line'].tolist())
 
-# Dropdown to select end line based on start selection
-end_selection = st.selectbox("Select End Line", df[df['Chapter_Line'] >= start_selection]['Chapter_Line'].tolist())
+# Get the index of the selected start line
+start_index = df[df['Chapter_Line'] == start_selection].index[0]
+
+# Dropdown to select end line based on the selected start line's index
+end_selection = st.selectbox("Select End Line", df[df.index >= start_index]['Chapter_Line'].tolist())
 
 # Get start and end line information from the selection
 start_line_data = df[df['Chapter_Line'] == start_selection].iloc[0]
@@ -58,20 +67,16 @@ repeat_times = st.number_input("Number of times to repeat the selection", min_va
 start_time = start_line_data['Start Time'] * 1000  # Convert to milliseconds
 end_time = end_line_data['End Time'] * 1000  # Convert to milliseconds
 
-# Extract the selected clip from the audio
-audio_clip = audio[start_time:end_time]
-
-# Repeat the audio clip the specified number of times
-repeated_clip = AudioSegment.silent(duration=0)
-for _ in range(repeat_times):
-    repeated_clip += audio_clip
+# Get the repeated audio clip using the cached function
+repeated_clip = get_repeated_clip(audio, start_time, end_time, repeat_times)
 
 # Save the repeated clip to a byte stream
 output_buffer = BytesIO()
 repeated_clip.export(output_buffer, format="mp3")
+output_buffer.seek(0)  # Reset buffer position
 
 # Display the play button for the repeated clip
-st.audio(output_buffer.getvalue())
+st.audio(output_buffer)
 
 # Footer section with additional resources
 st.markdown("""
@@ -83,3 +88,23 @@ st.markdown("""
 - [Memorization Tips](https://productivemuslim.com/10-tips-memorize-quran/)
 ---
 """)
+
+st.subheader("Admin Section: Edit CSV Data")
+password = st.text_input("Enter Admin Password", type="password")
+
+# Define the correct password
+correct_password = "qalam25"  # Change this to your actual password
+
+if password == correct_password:
+    st.success("Access granted! You can now edit the CSV data.")
+    
+    # Allow the user to edit the DataFrame directly
+    edited_df = st.data_editor(df, num_rows="dynamic")
+    
+    # Button to save changes to CSV
+    if st.button("Save Changes"):
+        edited_df.to_csv('Burdah_Lines - Sheet3.csv', index=False)
+        st.write("CSV updated successfully!")
+else:
+    if password:
+        st.error("Incorrect password!")
